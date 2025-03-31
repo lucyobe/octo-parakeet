@@ -1,75 +1,68 @@
-# Tokenized Data Transaction
+# Anonymization Smart Contract
 
 ## Overview
-The **Tokenized Data Transaction** smart contract facilitates secure transactions involving tokenized data. It includes features for staking, escrow-based transactions, and reward-based incentives for stakeholders. The contract is built using Clarity and operates on a blockchain platform, ensuring transparency and immutability.
+The **Anonymization Smart Contract** is designed to facilitate secure and private data submission for research purposes. It utilizes **ring signatures** to anonymize data submissions while ensuring aggregation and verification of the collected information.
 
 ## Features
-- **Fungible Token Integration:** Implements a fungible token (`data-token`) for transactions.
-- **Staking Mechanism:** Users can stake tokens and receive annual rewards.
-- **Escrow Transactions:** A secure escrow system ensures fair transactions between buyers and sellers.
-- **Permissioned Minting:** Only the contract owner can mint new tokens.
-- **Transfer Functionality:** Secure peer-to-peer transfer of tokens.
+- **Ring Signature-Based Anonymization:** Ensures privacy by allowing users to submit data without revealing their identity.
+- **Data Aggregation:** Collects and processes submitted data for research analysis.
+- **Role-Based Access Control:** Limits submission and research access to authorized users.
+- **Secure Researcher Management:** Only the contract owner can add or remove authorized researchers.
+- **Tamper-Resistant Data Storage:** Stores aggregated data securely on-chain.
 
-## Contract Constants
-- `contract-owner`: The account that deploys the contract.
-- `err-owner-only`: Error code (100) for unauthorized access.
-- `err-insufficient-balance`: Error code (101) for insufficient balance.
-- `err-invalid-escrow`: Error code (102) for invalid escrow transactions.
-- `staking-reward-rate`: Set to 5% annual reward.
+## Error Codes
+| Code | Description |
+|------|-------------|
+| `ERR-NOT-AUTHORIZED (u100)` | User is not authorized to perform the action. |
+| `ERR-INVALID-DATA (u101)` | Submitted data is invalid. |
+| `ERR-RING-SIZE-INVALID (u102)` | Provided ring size is invalid. |
 
 ## Data Structures
-### 1. Staking
-A `stakes` map tracks the staker’s principal, staked amount, and the block at which staking started.
-```clarity
-(define-map stakes
-    { staker: principal }
-    { amount: uint, start-block: uint })
-```
-### 2. Escrow Transactions
-An `escrows` map maintains information about pending and completed transactions.
-```clarity
-(define-map escrows
-    { id: uint }
-    { seller: principal,
-      buyer: principal,
-      amount: uint,
-      data-hash: (buff 32),
-      status: (string-ascii 20) })
-```
-- `escrow-nonce`: Tracks escrow transaction count.
+### Mappings
+- **`aggregated-data`**: Stores aggregated statistics for each category.
+- **`ring-signatures`**: Stores ring signatures for verification.
+- **`authorized-researchers`**: Tracks authorized researchers.
 
-## Public Functions
-### 1. Token Management
-- `mint(amount, recipient)`: Mints `amount` tokens to `recipient` (only owner).
-- `transfer(amount, sender, recipient)`: Transfers `amount` from `sender` to `recipient`.
+### Variables
+- **`submission-counter`**: Tracks the number of submissions.
+- **`contract-owner`**: Stores the contract owner.
 
-### 2. Staking Functions
-- `stake(amount)`: Locks `amount` of tokens in staking.
-- `unstake()`: Unstakes tokens and earns rewards based on staking duration.
+## Functions
+### Public Functions
+#### `initialize-contract(researcher: principal) -> (ok true | err)`
+Initializes the contract and authorizes a researcher (only callable by the contract owner).
 
-### 3. Escrow Transactions
-- `create-escrow(amount, data-hash, seller)`: Initiates an escrow between buyer and seller.
-- `complete-escrow(escrow-id)`: Finalizes an escrow transaction and releases tokens to the seller.
+#### `submit-anonymous-data(category: string, value: uint, ring-size: uint, ring-signature: buff) -> (ok submission-id | err)`
+Submits anonymized data under a specified category using a ring signature.
 
-## Read-Only Functions
-- `get-stake-info(staker)`: Returns the stake details of a `staker`.
-- `get-escrow(escrow-id)`: Retrieves escrow details.
-- `get-balance(account)`: Returns `data-token` balance of `account`.
+#### `add-researcher(researcher: principal) -> (ok true | err)`
+Adds a new researcher to the authorized list (only callable by the contract owner).
 
-## Private Functions
-- `calculate-reward(amount, start-block)`: Computes staking rewards based on duration and rate.
+#### `remove-researcher(researcher: principal) -> (ok true | err)`
+Removes a researcher from the authorized list (only callable by the contract owner).
 
-## How It Works
-1. **Token Minting:** The contract owner mints tokens to distribute.
-2. **Staking:** Users stake tokens and earn rewards over time.
-3. **Escrow Transactions:** Buyers deposit tokens in escrow, which are released to sellers upon completion.
-4. **Unstaking:** Users can withdraw staked tokens along with accumulated rewards.
+### Read-Only Functions
+#### `get-aggregated-data(category: string) -> (ok data | none)`
+Retrieves aggregated data for a given category.
+
+### Private Functions
+#### `generate-ring-members(size: uint) -> list`
+Generates a list of ring members for anonymity.
+
+#### `is-authorized(user: principal) -> bool`
+Checks if a user is authorized to submit data.
+
+## Usage
+1. **Initialize the contract** by adding an initial authorized researcher.
+2. **Submit anonymized data** under different research categories.
+3. **Retrieve aggregated data** for research analysis.
+4. **Manage researchers** to control data submission access.
 
 ## Security Considerations
-- **Access Control:** Only the contract owner can mint tokens.
-- **Safe Transfers:** Token transactions are validated for sender authorization.
-- **Escrow Protection:** Ensures fair transactions between parties.
+- Only authorized researchers can submit and retrieve data.
+- Ring signatures help maintain anonymity while ensuring verifiable submissions.
+- Contract owner has exclusive control over researcher management.
 
-## Conclusion
-The **Tokenized Data Transaction** contract provides a robust framework for secure, trustless data transactions and staking incentives. It ensures fair dealing between parties while incentivizing long-term participation through staking rewards.
+## License
+This project is open-source and available for modification under an appropriate open-source license.
 
