@@ -10,6 +10,11 @@ path = 'contracts/anonymization.clar'
 clarity_version = 2
 epoch = 2.5
 
+[contracts.candidate_removal]
+path = 'contracts/candidate_removal.clar'
+clarity_version = 2
+epoch = 2.5
+
 [contracts.disk_with_reset_delay]
 path = 'contracts/disk_with_reset_delay.clar'
 clarity_version = 2
