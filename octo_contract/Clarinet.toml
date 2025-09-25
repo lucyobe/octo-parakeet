@@ -30,6 +30,11 @@ path = 'contracts/recovery_mechanism.clar'
 clarity_version = 2
 epoch = 2.5
 
+[contracts.removal_of_candidate]
+path = 'contracts/removal_of_candidate.clar'
+clarity_version = 2
+epoch = 2.5
+
 [contracts.tokenized_data_transaction]
 path = 'contracts/tokenized_data_transaction.clar'
 clarity_version = 2
